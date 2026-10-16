@@ -1,5 +1,21 @@
 package com.example1.products.dto;
 
-public class productRequest {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
+public record productRequest(
+   @NotBlank 
+   String name,
+   @Positive 
+   @NotNull 
+   Long price,
+   @PositiveOrZero 
+   @NotNull
+   Integer stock,
+   @NotNull 
+   Long categoryId
+) {
 
 }
