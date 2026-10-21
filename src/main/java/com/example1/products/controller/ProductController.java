@@ -42,7 +42,7 @@ public class ProductController {
     public ResponseEntity<productResponse> findById(@PathVariable Long id) {
         Optional<product> product = service.findById(id);
         if(product.isEmpty()){
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(toResponse(product.get()));
     }
@@ -55,14 +55,15 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<productResponse> update(@PathVariable Long id,@Valid  @RequestBody productRequest productUpdate) {
-        Optional<product> product = service.update(id, toEntity(productUpdate));
+        Optional<product> product = service.update(id,
+             toEntity(productUpdate),
+            productUpdate.categoryId()
+        );
         if(product.isPresent()){
-
             return ResponseEntity.ok(toResponse(product.get()));
         }
         return ResponseEntity.notFound().build();
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

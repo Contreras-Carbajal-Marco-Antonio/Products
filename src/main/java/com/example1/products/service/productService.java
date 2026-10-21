@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example1.products.repository.CategoryRepository;
 import com.example1.products.repository.ProductRepository;
+import com.example1.products.exception.ResourceNotFoundException;
 import com.example1.products.model.category;
 import com.example1.products.model.product;
 
@@ -30,21 +31,28 @@ public class productService {
         return repo.findById(id);
     }
 
-    public product save(product product, Long id){
-        category category = repoCategory.findById(id).orElseThrow();
+    public product save(product product, Long categoryId){
+        category category = repoCategory.
+            findById(categoryId).
+            orElseThrow(
+            () -> new ResourceNotFoundException("Category not found with id: " + categoryId)
+        );
         product.setCategory(category);
         return repo.save(product);
     }
 
-    public Optional<product> update(Long id, product newProduct){
-        Optional<product> optional = repo.findById(id);
-        if(optional.isEmpty()){
-            return optional.empty();
-        }
-        product productBd = optional.get();
+    public Optional<product> update(Long id, product newProduct, Long categoryId){
+        product productBd = repo.findById(id).orElseThrow(
+            () -> new ResourceNotFoundException("Product not found with id: " + id)
+        );
+        category category = repoCategory.findById(categoryId).orElseThrow(
+            () -> new ResourceNotFoundException("Category not found with id: " + categoryId)
+        );
+        //product productBd = optional.get();
         productBd.setName(newProduct.getName());
         productBd.setPrice(newProduct.getPrice());
         productBd.setStock(newProduct.getStock());
+        productBd.setCategory(category);
         return Optional.of(repo.save(productBd));
     }
 
