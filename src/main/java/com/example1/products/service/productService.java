@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.example1.products.repository.CategoryRepository;
 import com.example1.products.repository.ProductRepository;
 import com.example1.products.exception.ResourceNotFoundException;
+import com.example1.products.exception.StockException;
 import com.example1.products.model.category;
 import com.example1.products.model.product;
 
@@ -21,7 +22,6 @@ public class productService {
         this.repo = repoProduct;
         this.repoCategory = repoCategory;
     }
-    
 
     public List<product> findAll(){
         return repo.findAll();
@@ -41,7 +41,7 @@ public class productService {
         return repo.save(product);
     }
 
-    public Optional<product> update(Long id, product newProduct, Long categoryId){
+    public product update(Long id, product newProduct, Long categoryId){
         product productBd = repo.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Product not found with id: " + id)
         );
@@ -53,7 +53,7 @@ public class productService {
         productBd.setPrice(newProduct.getPrice());
         productBd.setStock(newProduct.getStock());
         productBd.setCategory(category);
-        return Optional.of(repo.save(productBd));
+        return repo.save(productBd);
     }
 
     public boolean delete(Long id){
@@ -63,4 +63,18 @@ public class productService {
         repo.deleteById(id);
         return true;
     }
+
+    public product descuento(Long id, Double desc){
+        product product = findById(id).orElseThrow(
+            () -> new ResourceNotFoundException("Product not found with id: " + id)
+        );
+        if (product.getStock() < 1) {
+            throw new StockException("No se puede aplicar un descuento a un producto con stock 0.");
+        }
+        Double descuento = product.getPrice() * (desc / 100.0);
+        Double newPrice = product.getPrice() - descuento;
+        product.setPrice(newPrice);
+        return repo.save(product);
+    }
+    
 }

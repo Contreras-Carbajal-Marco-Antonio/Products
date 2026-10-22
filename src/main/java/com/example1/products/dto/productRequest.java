@@ -10,7 +10,7 @@ public record productRequest(
    String name,
    @Positive 
    @NotNull 
-   Long price,
+   Double price,
    @PositiveOrZero 
    @NotNull
    Integer stock,

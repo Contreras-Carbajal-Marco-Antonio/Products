@@ -1,7 +1,9 @@
 package com.example1.products.controller;
 
+import com.example1.products.dto.DescuentoRequest;
 import com.example1.products.dto.productRequest;
 import com.example1.products.dto.productResponse;
+import com.example1.products.exception.ResourceNotFoundException;
 import com.example1.products.model.product;
 import com.example1.products.service.productService;
 import jakarta.validation.Valid;
@@ -9,11 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,11 +42,10 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<productResponse> findById(@PathVariable Long id) {
-        Optional<product> product = service.findById(id);
-        if(product.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(toResponse(product.get()));
+        product product = service.findById(id).orElseThrow(
+            () -> new ResourceNotFoundException("Product not found with id: " + id)
+        );
+        return ResponseEntity.ok(toResponse(product));
     }
 
     @PostMapping
@@ -55,14 +56,11 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<productResponse> update(@PathVariable Long id,@Valid  @RequestBody productRequest productUpdate) {
-        Optional<product> product = service.update(id,
-             toEntity(productUpdate),
+        product product = service.update(id,
+            toEntity(productUpdate),
             productUpdate.categoryId()
         );
-        if(product.isPresent()){
-            return ResponseEntity.ok(toResponse(product.get()));
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(toResponse(product));
     }
 
     @DeleteMapping("/{id}")
@@ -72,6 +70,12 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<productResponse> descuento(@PathVariable Long id, @Valid @RequestBody DescuentoRequest descuento){
+        product product = service.descuento(id, descuento.getDescuento());
+        return ResponseEntity.ok(toResponse(product));
     }
 
     private productResponse toResponse(product product){

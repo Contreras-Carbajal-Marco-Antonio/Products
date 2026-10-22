@@ -14,14 +14,14 @@ public class product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private Long price;
+    private Double price;
     private int stock;
 
     @ManyToOne 
     @JoinColumn(name = "category_id")
     private category category;
 
-    public product(Long id, String name, Long price, int stock, com.example1.products.model.category category) {
+    public product(Long id, String name, Double price, int stock, com.example1.products.model.category category) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -48,11 +48,11 @@ public class product {
         this.name = name;
     }
 
-    public Long getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
